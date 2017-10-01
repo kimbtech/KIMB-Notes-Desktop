@@ -12,9 +12,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" type="text/css" href="load/notes.css">
-  
-  <script src="load/jquery.min.js"></script>
-  <script src="login.js"></script>
+
 </head>
 
 <body>
@@ -44,9 +42,17 @@
           </tr>
       </table>
       <p class="small">Sie müssen sich nur beim ersten Start einloggen.</p>
+      <p class="small">Über das Menü können Sie sich jeder Zeit wieder ausloggen.</p>
 		</div>
 
   </div>
+
+  <script>
+    // jQuery
+    let $ = require('jquery');
+    // LoginManager
+    require( './login.js' );
+  </script>
 </body>
 
 </html>
