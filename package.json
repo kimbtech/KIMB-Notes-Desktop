@@ -22,6 +22,7 @@
     "about-window": "^1.8.0",
     "electron-json-storage": "^3.1.1",
     "jquery": "^3.2.1",
+    "request": "^2.83.0",
     "sjcl": "^1.0.7",
     "valid-url": "^1.0.9"
   }

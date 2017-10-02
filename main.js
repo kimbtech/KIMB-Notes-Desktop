@@ -23,13 +23,19 @@ let mainWindow
 const openAboutWindow = require('about-window').default;
 
 function createWindow () {
+  // Fenster soll bei Maus geöffnet werden
+  var mousePos = electron.screen.getCursorScreenPoint();
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    minWidth: 300,
+    x: mousePos.x, 
+    y: mousePos.y,
+    minWidth: 340,
     width: 900,
     height: 700,
-    minHeight: 700,
-    icon: path.join(__dirname, 'assets/icons/png/64x64.png')
+    minHeight: 500,
+    icon: path.join(__dirname, 'assets/icons/png/64x64.png'),
+    backgroundColor: '#010101',
+    show: false
   });
 
   // and load the index.html of the app.
@@ -38,6 +44,11 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+
+  //Fenster erst zeigen, wenn Inhalt fertig
+  mainWindow.once( 'page-title-updated', function() {
+    mainWindow.show();
+  });
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -61,14 +72,15 @@ function createWindow () {
         submenu: [
           {
             label: 'Über KIMB-Notes-Desktop',
-              click: () => openAboutWindow({
-                icon_path: path.join(__dirname, 'assets/icons/png/128x128.png'),
-                bug_report_url : 'https://github.com/kimbtech/KIMB-Notes-Desktop/issues',
-                copyright: 'copyright by KIMB-technologies 2017, distributed under terms of GPLv3',
-                homepage: 'https://github.com/kimbtech/KIMB-Notes-Desktop',
-                description: 'A desktop application for KIMB-Notes server.',
-                license: 'GPL-3.0'
-              })
+            click: () => openAboutWindow({
+              icon_path: path.join(__dirname, 'assets/icons/png/128x128.png'),
+              bug_report_url : 'https://github.com/kimbtech/KIMB-Notes-Desktop/issues',
+              copyright: 'copyright by KIMB-technologies 2017, distributed under terms of GPLv3',
+              homepage: 'https://github.com/kimbtech/KIMB-Notes-Desktop',
+              description: 'A desktop application for KIMB-Notes server.',
+              license: 'GPL-3.0',
+              win_options : electron.screen.getCursorScreenPoint()
+            })
           },
           {type: 'separator'},
           {role: 'services', submenu: []},
@@ -101,7 +113,8 @@ function createWindow () {
                   copyright: 'copyright by KIMB-technologies 2017, distributed under terms of GPLv3',
                   homepage: 'https://github.com/kimbtech/KIMB-Notes-Desktop',
                   description: 'A desktop application for KIMB-Notes server.',
-                  license: 'GPL-3.0'
+                  license: 'GPL-3.0',
+                  win_options : electron.screen.getCursorScreenPoint()
                 })
             },
             {type: 'separator'},
@@ -217,14 +230,17 @@ function logUserOut(){
       throw error;
     }
 
-    //Fenster schließen
-    mainWindow = null
-    //neues Fenster laden
-    createWindow();
+    //Authcode des Users entfernen
+    /*
+      ToDo
+    */
 
+    //Fenster neu laden
+    mainWindow.reload()
   });
 }
 
+//Userdaten des Users abfragen (werde in Home gesucht und wenn verfügbar geladen)
 function askForUserData( event ){
   var userdata = {
     "server" : "",
@@ -274,11 +290,13 @@ function askForUserData( event ){
   }
 }
 
+//Userdaten auf Festplatte im Home des Users sichern
 function saveUserData( event, userdata ){
-  /*
-      ToDo
-  */
-  dialog.showErrorBox( 'Daten speichern' , JSON.stringify( userdata ) );
+  storage.set('NotesUser', userdata, function(error) {
+    if (error){
+      dialog.showErrorBox( 'Kann Userinformationen nicht speichern!' , 'Fehler: "' + error.message + '"' );
+    }
+  });
 }
 
 // Messages IPC
