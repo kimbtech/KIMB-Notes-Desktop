@@ -90,6 +90,11 @@ function createWindow () {
           {role: 'unhide'},
           {type: 'separator'},
           {
+            label: 'Freigaben',
+            click: () => freigabenDialog()
+          },
+          {type: 'separator'},
+          {
             label: 'Ausloggen',
             click: () => logUserOut()
           },
@@ -116,6 +121,11 @@ function createWindow () {
                   license: 'GPL-3.0',
                   win_options : electron.screen.getCursorScreenPoint()
                 })
+            },
+            {type: 'separator'},
+            {
+              label: 'Freigaben',
+              click: () => freigabenDialog()
             },
             {type: 'separator'},
             {
@@ -224,19 +234,21 @@ app.on('activate', function () {
 
 //User Ausloggen, Fenster neu starten, wieder nach Login fragen
 function logUserOut(){
-  //Userdaten löschen
-  storage.remove('NotesUser', function(error) {
-    if( error ){
-      throw error;
+  //fragen
+  dialog.showMessageBox(
+    { type: 'info', buttons: ['Ja', 'Nein'], message: 'Wollen Sie sich wiklich ausloggen?' },
+    function (buttonIndex) {
+      if( buttonIndex === 0 ){
+        //Userdaten löschen
+        storage.remove('NotesUser', function(error) {
+          if( error ){
+            throw error;
+          }
+
+          //Authcode löschen, dann Fenster neu laden
+          mainWindow.webContents.send( 'delete-authcode' );
+      });
     }
-
-    //Authcode des Users entfernen
-    /*
-      ToDo
-    */
-
-    //Fenster neu laden
-    mainWindow.reload()
   });
 }
 
@@ -279,7 +291,7 @@ function askForUserData( event ){
     //zurückgeben
     function answer(loggedIn){
       event.sender.send('ask-for-user-data-back', {
-        "loggenIn" : loggedIn,
+        "loggedIn" : loggedIn,
         "userdata" : userdata
       });
     }
@@ -302,4 +314,11 @@ function saveUserData( event, userdata ){
 // Messages IPC
 ipc.on('ask-for-user-data', askForUserData );
 ipc.on('save-user-data', saveUserData );
+ipc.on('reload-window', () => { mainWindow.reload(); });
+
+//Freigaben Menübutton
+function freigabenDialog(){
+  //an das Fenster weitergeben
+  mainWindow.webContents.send( 'freigaben-dialog' );
+}
 
