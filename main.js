@@ -1,5 +1,5 @@
 //Entwicklungsmodus?
-const devMode = true;
+const devMode = false;
 
 const electron = require('electron')
 // Module to control application life.
