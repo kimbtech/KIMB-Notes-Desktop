@@ -3,6 +3,10 @@
 Eine Desktop Application für KIMB-Notes basierend auf [electron-quick-start](https://github.com/electron/electron-quick-start).
 
 >
+> **Noch nicht mit Notes Version 1.0 kompatibel!!**
+>
+
+>
 > Alles weitere zu KIMB-Notes befindet sich im [KIMB-Notes Repository](https://github.com/kimbtech/KIMB-Notes).
 >
 
