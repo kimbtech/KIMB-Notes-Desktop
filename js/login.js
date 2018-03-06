@@ -1,9 +1,5 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
-
 /**
- * Imports
+ * Datei die das Fenster (haupsächlich Login verwaltet)
  */
 
 //Für die IPC Messages
@@ -16,13 +12,10 @@ var sjcl = require('sjcl');
 const dialog = require('electron').remote.dialog 
 // Electron Shell
 const {shell} = require( 'electron' );
-
 //Webrequests
-var request = require('request');
+var request = require( 'request' );
+const conf = require( __dirname + '/config.js' );
 
-/**
- * Funktionen
- */
 //Struktur für Userdaten
 var userdata = {
 	"server" : "",
@@ -40,8 +33,9 @@ var userdata = {
  * @param {function (JSON)} errcallback (optional) Funktion bei fehlerhafter Anfrage, Parameter Fehlerobjekt und Status-Code
  */
 function web_request( task, post, callback, errcallback ){
+	var file = ( task !== 'share' ? 'rest' : 'ajax' );
 	request.post({
-			url: userdata.server + '/ajax.php?' + task, 
+			url: userdata.server + '/' + file + '.php?' + task, 
 			form : post,
 			jar: true
 		},
@@ -223,7 +217,7 @@ function mainLoginManager(){
 					password = sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( password ));
 
 					//Authcode holen
-					web_request( 'login',
+					web_request( 'auth',
 						{ username : userdata.username , password : password  },
 						function ( data ) {
 							try{
@@ -241,38 +235,23 @@ function mainLoginManager(){
 								){
 									//Login okay?
 									if( data.status === "okay" ){
-										//UserID sichern
+										//UserID und Authcode sichern
 										userdata.userid = data.data.id;
+										userdata.authcode = data.data.authcode;
+
+										console.log( data );
 
 										//Passwort aus DOM löschen
 										$( "input#password" ).val('');
 
-										//Authcode erstellen
-										web_request( 'account',
-											{ userid : userdata.userid, art : 'new', id : 'empty'  },
-											function ( data ) {
-												//erstmal String zu JSON
-												data = JSON.parse( data );
-
-												//Antwort okay?
-												if( data.status === "okay" ){
-													//Authcode übernehmen
-													userdata.authcode = data.data;
-
-													//Daten sichern
-													ipc.send( 'save-user-data', userdata );
+										//Daten sichern
+										ipc.send( 'save-user-data', userdata );
 													
-													//Formular ausblenden
-													$( 'div.credentials' ).addClass( 'disable' );
+										//Formular ausblenden
+										$( 'div.credentials' ).addClass( 'disable' );
 
-													//NotesTool öffnen
-													openNotesTool();
-												}
-												else{
-													$( 'div.message.loading' ).addClass( 'disable' );
-													dialog.showErrorBox( 'Login nicht erfolgreich!', 'Kann keinen Authentifizierungslink erstellen!' );
-												}
-											});
+										//NotesTool öffnen
+										openNotesTool();
 									}
 									else{
 										$( 'div.message.loading' ).addClass( 'disable' );
@@ -299,7 +278,7 @@ function mainLoginManager(){
 	//open Notes
 	function openNotesTool(){
 		//Userdaten okay?
-		web_request( 'login',
+		web_request( 'auth',
 			{ username : userdata.username, authcode : userdata.authcode },
 			function (data) {
 				//erstmal String zu JSON
@@ -312,9 +291,17 @@ function mainLoginManager(){
 					openWebView( url, ( webview ) => {
 						var css = 'div.logout button#logout{ display: none !important; }'
 							+ 'div.logout span.small{ display: none !important; } '
-							+ 'div.logout{ height : 25px !important; width : 45px !important; }';
+							+ 'div.logout{ height : 26px !important; width : 48px !important; position: initial; } '
+							+ 'body { background: #f5f5f5; } '
+							+ 'div.main { border: none; box-shadow: none; } '
+							+ 'h1, div.footer { display:none; }';
 
+						webview.executeJavaScript( ' $("div.logout").removeClass("box"); ' );
 						webview.executeJavaScript( ' $("head").append( "<style>' + css + ' )</style>" );' );
+
+						if( conf.webViewDevTools ){
+							webview.openDevTools();
+						}
 					});
 				}
 				else{
@@ -345,10 +332,10 @@ function freigabenDialog(){
 		//Öffnen
 		openWebView( '<<share-link>>' );
 
-		/*
+		 *
 		 * ToDo
-		 */
-	/**/
+		 *
+	*/
 	dialog.showErrorBox( 'Noch nicht verfügbar!', 'Diese Funktion ist noch nicht verfügbar!!' );
 }
 
@@ -356,33 +343,19 @@ function freigabenDialog(){
 function deleteAuthCode(){
 	//überhaupt Userdaten?
 	if( userdata.server != '' ){
-		//einloggen
-		web_request( 'login',
-			{ username : userdata.username, authcode : userdata.authcode },
-			function (data) {
+		//Code löschen
+		web_request( 'account',
+			{ userid : userdata.userid, authcode : userdata.authcode, art : 'del', id : sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( userdata.authcode )) },
+			function ( data ) {
 				//erstmal String zu JSON
 				data = JSON.parse( data );
 
-				//okay?
+				//Antwort okay?
 				if( data.status === "okay" ){
-					//Code löschen
-					web_request( 'account',
-						{ userid : userdata.userid, art : 'del', id : sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( userdata.authcode )) },
-						function ( data ) {
-							//erstmal String zu JSON
-							data = JSON.parse( data );
-
-							//Antwort okay?
-							if( data.status === "okay" ){
-								ipc.send( 'reload-window' );
-							}
-							else{
-								dialog.showErrorBox('Logout fehlgeschlagen', 'Sie konnten nicht ausgeloggt werden!');
-							}
-					});
+					ipc.send( 'reload-window' );
 				}
 				else{
-					dialog.showErrorBox( 'Nicht eingeloggt', 'Sie konnten nicht eingeloggt werden!' );
+					dialog.showErrorBox('Logout fehlgeschlagen', 'Sie konnten nicht ausgeloggt werden!');
 				}
 		});
 	}
