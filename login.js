@@ -178,90 +178,120 @@ function mainLoginManager(){
 			
 			//aus Formular holen
 			userdata.server = $( "input#serverurl" ).val();
+			//http(s) davor, wenn nicht da
+			if( userdata.server.substr(0,7) != 'http://' && userdata.server.substr(0,8) != 'https://' ){
+				userdata.server = 'https://' + userdata.server;
+				
+			}
+
 			userdata.username = $( "input#username" ).val();
 			password = $( "input#password" ).val();
 			//	sichern, später vorschlagen
 			localStorage.setItem( 'lastinput', JSON.stringify( [ userdata.server, userdata.username ] ) );
 
-			if(
-				validUrl.isUri(  userdata.server )
-				&&
-				userdata.username.replace( /[^a-z]/, '' ) === userdata.username && userdata.username != ''
-				&& 
-				password != ''
-			){
-				//Passwort Hashen
-				password = sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( password ));
-
-				//Authcode holen
-				web_request( 'login',
-					{ username : userdata.username , password : password  },
-					function ( data ) {
-						try{
-							//erstmal String zu JSON
-							data = JSON.parse( data );
-						
-							if(
-								typeof data === "object"
-								&&
-								typeof data.status === "string"
-								&&
-								typeof data.error !== "undefined"
-								&&
-								typeof data.data !== "undefined"
-							){
-								//Login okay?
-								if( data.status === "okay" ){
-									//UserID sichern
-									userdata.userid = data.data.id;
-
-									//Passwort aus DOM löschen
-									$( "input#password" ).val('');
-
-									//Authcode erstellen
-									web_request( 'account',
-										{ userid : userdata.userid, art : 'new', id : 'empty'  },
-										function ( data ) {
-											//erstmal String zu JSON
-											data = JSON.parse( data );
-
-											//Antwort okay?
-											if( data.status === "okay" ){
-												//Authcode übernehmen
-												userdata.authcode = data.data;
-
-												//Daten sichern
-												ipc.send( 'save-user-data', userdata );
-												
-												//Formular ausblenden
-												$( 'div.credentials' ).addClass( 'disable' );
-
-												//NotesTool öffnen
-												openNotesTool();
-											}
-											else{
-												$( 'div.message.loading' ).addClass( 'disable' );
-												dialog.showErrorBox( 'Login nicht erfolgreich!', 'Kann keinen Authentifizierungslink erstellen!' );
-											}
-										});
-								}
-								else{
-									$( 'div.message.loading' ).addClass( 'disable' );
-									dialog.showErrorBox( 'Login nicht erfolgreich!', 'Bitte prüfen Sie Username und Passwort!' );
-								}
-							}
-							else{
-								throw new Error( 'Fehler' );
-							}
-						} catch(e){
-							$( 'div.message.loading' ).addClass( 'disable' );
-							dialog.showErrorBox( 'Fehlerhafte Serverantowort', 'Der angegebene Server hat nicht wie ein KIMB-Notes-Server geantowrtet!' );
-						}
-					});
+			//Hinweis, dass keine Verschlüsselte Verbindung
+			if( userdata.server.substr(0,7) == 'http://' ){
+				dialog.showMessageBox({
+					type : "warning",
+					title : "Unverschlüsselte Verbindung",
+					message : "Die Verbindung zum angegebenen Server ist nicht verschlüsselt, dadurch werden die Inhalte der Notizen nicht geschützt!",
+					buttons : ["Trotzdem anmelden", "Abbrechen"]
+				}, function ( num ) {
+					if( num == 0 ){
+						//Login
+						serverconnlogin();
+					}
+					else{
+						//Ladebalken weg
+						$( 'div.message.loading' ).addClass( 'disable' );						
+					}
+				});
 			}
 			else{
-				$( 'div.message.loading' ).addClass( 'disable' );
-				dialog.showErrorBox( 'Formulareingaben', 'Bitte füllen Sie allen Felder korrekt!' );
+				serverconnlogin();
+			}
+
+			function serverconnlogin(){
+				if(
+					validUrl.isUri(  userdata.server )
+					&&
+					userdata.username.replace( /[^a-z]/, '' ) === userdata.username && userdata.username != ''
+					&& 
+					password != ''
+				){
+					//Passwort Hashen
+					password = sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( password ));
+
+					//Authcode holen
+					web_request( 'login',
+						{ username : userdata.username , password : password  },
+						function ( data ) {
+							try{
+								//erstmal String zu JSON
+								data = JSON.parse( data );
+							
+								if(
+									typeof data === "object"
+									&&
+									typeof data.status === "string"
+									&&
+									typeof data.error !== "undefined"
+									&&
+									typeof data.data !== "undefined"
+								){
+									//Login okay?
+									if( data.status === "okay" ){
+										//UserID sichern
+										userdata.userid = data.data.id;
+
+										//Passwort aus DOM löschen
+										$( "input#password" ).val('');
+
+										//Authcode erstellen
+										web_request( 'account',
+											{ userid : userdata.userid, art : 'new', id : 'empty'  },
+											function ( data ) {
+												//erstmal String zu JSON
+												data = JSON.parse( data );
+
+												//Antwort okay?
+												if( data.status === "okay" ){
+													//Authcode übernehmen
+													userdata.authcode = data.data;
+
+													//Daten sichern
+													ipc.send( 'save-user-data', userdata );
+													
+													//Formular ausblenden
+													$( 'div.credentials' ).addClass( 'disable' );
+
+													//NotesTool öffnen
+													openNotesTool();
+												}
+												else{
+													$( 'div.message.loading' ).addClass( 'disable' );
+													dialog.showErrorBox( 'Login nicht erfolgreich!', 'Kann keinen Authentifizierungslink erstellen!' );
+												}
+											});
+									}
+									else{
+										$( 'div.message.loading' ).addClass( 'disable' );
+										dialog.showErrorBox( 'Login nicht erfolgreich!', 'Bitte prüfen Sie Username und Passwort!' );
+									}
+								}
+								else{
+									throw new Error( 'Fehler' );
+								}
+							} catch(e){
+								$( 'div.message.loading' ).addClass( 'disable' );
+								dialog.showErrorBox( 'Fehlerhafte Serverantowort', 'Der angegebene Server hat nicht wie ein KIMB-Notes-Server geantowrtet!' );
+							}
+						});
+				}
+				else{
+					$( 'div.message.loading' ).addClass( 'disable' );
+					dialog.showErrorBox( 'Formulareingaben', 'Bitte füllen Sie allen Felder korrekt!' );
+				}
 			}
 		}
 	}
