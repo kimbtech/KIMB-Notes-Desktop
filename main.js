@@ -14,8 +14,6 @@ const electron = require('electron');
 
 //Systemkonfiguration
 const config = require( __dirname + '/js/config.js' );
-//JSON Speicher für Userdaten
-const storage = require('electron-json-storage');
 
 // ****
 // Allgemeines Fensterverhalten
@@ -79,6 +77,14 @@ electron.app.on('activate', function () {
 		createWindow();
 	}
 });
+
+// ****
+// Updates
+// ****
+const claUpdates = new require( __dirname + '/js/Updates.js' );
+var Updates = new claUpdates();
+//	Nach Updates gucken und wenn verfügbar Nachricht
+Updates.checkUpdates();
 
 // ****
 // Load Functions
