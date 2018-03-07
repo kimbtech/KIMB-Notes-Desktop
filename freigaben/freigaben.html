@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>KIMB-Notes-Desktop</title>
+	<link rel="shortcut icon" href="load/favicon.ico" type="image/x-icon; charset=binary">
+	<link rel="icon" href="load/favicon.ico" type="image/x-icon; charset=binary">
+	<link rel="apple-touch-icon" href="load/notes.png">
+
+	<meta charset="utf-8">
+	<meta name="robots" content="none">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="load/notes.css">
+</head>
+<body>
+	<div class="main">
+    
+		<div class="message loading">
+		</div>
+			
+		<div class="box credentials disable">
+			<table id="credentials">
+				<tr>
+					<td >Adresse des KIMB-Notes-Servers:</td>
+					<td><input type="text" id="serverurl" placeholder="https://example.com/notes"></td>
+				</tr>
+				<tr>
+					<td>Username:</td>
+					<td><input type="text" id="username"></td>
+				</tr>
+				<tr>
+					<td>Passwort:</td>
+					<td><input type="password" id="password"></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><button id="loginsubmit">Einloggen</button></td>
+				</tr>
+			</table>
+			<p class="small">Sie müssen sich nur beim ersten Start einloggen.</p>
+			<p class="small">Über das Menü können Sie sich jeder Zeit wieder ausloggen.</p>
+		</div>
+	
+		<div id="notestext">
+			<center>
+				<img src="load/notes.png" height="30px" width="30px">
+				KIMB-Notes-Desktop
+			</center>      
+		</div>
+
+	</div>
+
+	<div class="webview disable">
+	</div>
+
+	<script>
+		// jQuery
+		let $ = require('jquery');
+		// LoginManager
+		require( __dirname + '/js/login.js' );
+	</script>
+</body>
+</html>

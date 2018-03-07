@@ -301,26 +301,6 @@ function mainLoginManager(){
 //	wenn keine Daten gefunden, Formular zeigen
 mainLoginManager();
 
-/**
- * Freigaben etc.
- */
-
-//Freigaben Dialog
-function freigabenDialog(){
-	/*
-		//Schließen
-		mainLoginManager();
-		
-		//Öffnen
-		openWebView( '<<share-link>>' );
-
-		 *
-		 * ToDo
-		 *
-	*/
-	dialog.showErrorBox( 'Noch nicht verfügbar!', 'Diese Funktion ist noch nicht verfügbar!!' );
-}
-
 //Authcode löschen, dann Fenster neu laden
 function deleteAuthCode(){
 	function logoutProblemDialog(){
@@ -365,6 +345,5 @@ function deleteAuthCode(){
 }
 
 // IPC Messages
-ipc.on( 'freigaben-dialog', freigabenDialog );
 ipc.on( 'delete-authcode', deleteAuthCode );
 ipc.on( 'webview-devtools', () => { $( "webview#mainWebview" )[0].openDevTools() } );
