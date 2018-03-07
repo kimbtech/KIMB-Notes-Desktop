@@ -9,7 +9,7 @@ const openAboutWindow = require('about-window').default;
 // Systemkonfiguration
 const config = require( __dirname + '/config.js' );
 // ausgewählte Funktionen
-const {freigabenDialog, logUserOut} = require( __dirname + '/functions.js' );
+const {freigabenDialog, logUserOut, webviewDevtools} = require( __dirname + '/functions.js' );
 
 //Menue erstellen
 var menuTemplate = [];
@@ -141,7 +141,11 @@ if( config.devMode ){
 		label: 'Entwicklung',
 		submenu: [
 			{role: 'forcereload'},
-			{role: 'toggledevtools'}
+			{role: 'toggledevtools'},
+			{
+				label: 'Toggle Webview Developer Tools',
+				click: () => webviewDevtools()
+			}
 		]
 	});
 }

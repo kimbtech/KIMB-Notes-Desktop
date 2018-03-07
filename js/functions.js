@@ -9,25 +9,31 @@ const electron = require('electron');
 //JSON Speicher für Userdaten
 const storage = require('electron-json-storage');
 
+var mainWindow = null;
+
 module.exports = {
 	//User Ausloggen, Fenster neu starten, wieder nach Login fragen
 	"logUserOut" : function (){
-		w = electron.BrowserWindow.getFocusedWindow();
+		mainWindow = electron.BrowserWindow.getFocusedWindow();
 		//Wiklich ausloggen?
 		dialog.showMessageBox(
 			{ type: 'info', buttons: ['Ja', 'Nein'], message: 'Wollen Sie sich wirklich ausloggen?' },
 			function (buttonIndex) {
 				if( buttonIndex === 0 ){
-					//Userdaten löschen
-					storage.remove('NotesUser', function(error) {
-						if( error ){ throw error; }
-
-						//Authcode löschen, dann Fenster neu laden
-						w.webContents.send( 'delete-authcode' );
-					});
+					//Authcode löschen, dann Fenster neu laden
+					mainWindow.webContents.send( 'delete-authcode' );
 				}
 			}
 		);
+	},
+	//Userdaten löschen, Fenster neu laden
+	"deleteUserData" : function () {
+		//Userdaten löschen
+		storage.remove('NotesUser', function(error) {
+			if( error ){ throw error; }
+	
+			mainWindow.reload();
+		});
 	},
 	//Userdaten des Users abfragen (werde in Home gesucht und wenn verfügbar geladen)
 	"askForUserData" : function( event ) {
@@ -84,5 +90,10 @@ module.exports = {
 	"freigabenDialog" : function(){
 		//an das Fenster weitergeben
 		electron.BrowserWindow.getFocusedWindow().webContents.send( 'freigaben-dialog' );
+	},
+	//Freigaben Menübutton
+	"webviewDevtools" : function(){
+		//an das Fenster weitergeben
+		electron.BrowserWindow.getFocusedWindow().webContents.send( 'webview-devtools' );
 	}
 }

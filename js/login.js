@@ -1,20 +1,23 @@
 /**
- * Datei die das Fenster (haupsächlich Login verwaltet)
+ * Inhaltes des Fensters
+ * 	Login nud KIMB-Notes öffnen
  */
 
-//Für die IPC Messages
-const ipc = require('electron').ipcRenderer
+// Electron API
+const electron = require( 'electron' );
+	// Links auf Electron
+	//	Für die IPC Messages
+	const ipc = electron.ipcRenderer
+	//	System Dialog
+	const dialog = electron.remote.dialog 
+	//	Electron Shell
+	const shell = electron.shell;
 // URLs testen
-var validUrl = require('valid-url');
+const validUrl = require('valid-url');
 // Hashing
-var sjcl = require('sjcl');
-// System Dialog
-const dialog = require('electron').remote.dialog 
-// Electron Shell
-const {shell} = require( 'electron' );
+const sjcl = require('sjcl');
 //Webrequests
-var request = require( 'request' );
-const conf = require( __dirname + '/config.js' );
+const request = require( 'request' );
 
 //Struktur für Userdaten
 var userdata = {
@@ -43,16 +46,17 @@ function web_request( task, post, callback, errcallback ){
 			if(
 				error !== null || (response && response.statusCode) != 200
 			){
-				//Fehlermeldung
-				dialog.showErrorBox(
-					'Fehler beim Login',
-					'Konnte nicht mit Server verbinden: "'
-						+ (( error !== null ) ? error.message : 'Statuscode ' + (response && response.statusCode) ) + '"'
-				);
-
 				//Fehler weitergeben
 				if( typeof errcallback === "function" ){
 					errcallback( error, (response && response.statusCode) );
+				}
+				else{
+					//Fehlermeldung
+					dialog.showErrorBox(
+						'Fehler',
+						'Konnte nicht mit Server verbinden: "'
+							+ (( error !== null ) ? error.message : 'Statuscode ' + (response && response.statusCode) ) + '"'
+					);
 				}
 			}
 			else{
@@ -239,8 +243,6 @@ function mainLoginManager(){
 										userdata.userid = data.data.id;
 										userdata.authcode = data.data.authcode;
 
-										console.log( data );
-
 										//Passwort aus DOM löschen
 										$( "input#password" ).val('');
 
@@ -277,39 +279,19 @@ function mainLoginManager(){
 
 	//open Notes
 	function openNotesTool(){
-		//Userdaten okay?
-		web_request( 'auth',
-			{ username : userdata.username, authcode : userdata.authcode },
-			function (data) {
-				//erstmal String zu JSON
-				data = JSON.parse( data );
+		//using webview and authcode
+		var url = userdata.server + '/' + '#' + userdata.username + ':' + userdata.authcode;
+		openWebView( url, ( webview ) => {
+			var css = 'div.logout button#logout{ display: none !important; }'
+				+ 'div.logout span.small{ display: none !important; } '
+				+ 'div.logout{ height : 26px !important; width : 48px !important; position: initial; } '
+				+ 'body { background: #f5f5f5; } '
+				+ 'div.main { border: none; box-shadow: none; } '
+				+ 'h1, div.footer { display:none; }';
 
-				//okay?
-				if( data.status === "okay" ){
-					//using webview and authcode
-					var url = userdata.server + '/' + '#' + userdata.username + ':' + userdata.authcode;
-					openWebView( url, ( webview ) => {
-						var css = 'div.logout button#logout{ display: none !important; }'
-							+ 'div.logout span.small{ display: none !important; } '
-							+ 'div.logout{ height : 26px !important; width : 48px !important; position: initial; } '
-							+ 'body { background: #f5f5f5; } '
-							+ 'div.main { border: none; box-shadow: none; } '
-							+ 'h1, div.footer { display:none; }';
-
-						webview.executeJavaScript( ' $("div.logout").removeClass("box"); ' );
-						webview.executeJavaScript( ' $("head").append( "<style>' + css + ' )</style>" );' );
-
-						if( conf.webViewDevTools ){
-							webview.openDevTools();
-						}
-					});
-				}
-				else{
-					dialog.showErrorBox( 'Login nicht möglich!', 'Sie konnten nicht eingeloggt werden.' );
-					loginform();
-				}
+			webview.executeJavaScript( ' $("div.logout").removeClass("box"); ' );
+			webview.executeJavaScript( ' $("head").append( "<style>' + css + ' )</style>" );' );
 		});
-
 	}
 
 	//Erstmal nach bekannten Daten gucken.
@@ -341,6 +323,21 @@ function freigabenDialog(){
 
 //Authcode löschen, dann Fenster neu laden
 function deleteAuthCode(){
+	function logoutProblemDialog(){
+		dialog.showMessageBox({
+			type : "error",
+			title : "Logout fehlgeschlagen",
+			message : "Sie konnten nicht ausgeloggt werden, dies kann an einer fehlenden Internetverbindung oder an einem gelöschten Account auf dem Server liegen.",
+			detail : "Möchten Sie eingeloggt bleiben oder sich trotzdem neu anmelden, dies führt dazu, dass der Authentifikationslink auf dem Server gültig bleibt.",
+			buttons : ["Eingeloggt bleiben", "Neu anmelden"]
+		}, function ( num ) {
+			if( num == 1 ){
+				//Ausloggen
+				ipc.send( 'delete-userdata' );
+			}
+		});
+	}
+
 	//überhaupt Userdaten?
 	if( userdata.server != '' ){
 		//Code löschen
@@ -352,11 +349,14 @@ function deleteAuthCode(){
 
 				//Antwort okay?
 				if( data.status === "okay" ){
-					ipc.send( 'reload-window' );
+					//Ausloggen
+					ipc.send( 'delete-userdata' );
 				}
 				else{
-					dialog.showErrorBox('Logout fehlgeschlagen', 'Sie konnten nicht ausgeloggt werden!');
+					logoutProblemDialog();
 				}
+		}, function(){
+			logoutProblemDialog();
 		});
 	}
 	else{
@@ -367,3 +367,4 @@ function deleteAuthCode(){
 // IPC Messages
 ipc.on( 'freigaben-dialog', freigabenDialog );
 ipc.on( 'delete-authcode', deleteAuthCode );
+ipc.on( 'webview-devtools', () => { $( "webview#mainWebview" )[0].openDevTools() } );
