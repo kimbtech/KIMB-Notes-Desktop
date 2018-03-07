@@ -25,9 +25,9 @@ function createWindow () {
 		x: mousePos.x, 
 		y: mousePos.y,
 		minWidth: 340,
-		width: 900,
-		height: 700,
-		minHeight: 500,
+		width: 500,
+		height: 500,
+		minHeight: 300,
 		icon: __dirname + '/../assets/icons/png/64x64.png',
 		backgroundColor: '#f5f5f5',
 		show: false
@@ -48,6 +48,8 @@ function createWindow () {
 	});
 
 	//kein Menü
-  	electron.Menu.setApplicationMenu(null);
+  	freigWindow.setMenu(null);
 }
-createWindow();
+
+// Fenster erstellen Funkion
+module.exports = createWindow;

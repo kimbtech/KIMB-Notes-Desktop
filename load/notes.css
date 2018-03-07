@@ -92,7 +92,7 @@ del {
 	text-decoration:line-through;
 }
 
-/* Wiederholdene Seitenelemente */
+/* Wiederholende Seitenelemente */
 
 .disable{
 	display: none !important;
@@ -145,14 +145,7 @@ div.main{
 	position:relative;
 }
 
-div.footer{
-	text-align:center;
-	padding:10px;
-}
-div.footer a{
-	color:white;
-}
-
+/* Anmeldesdaten Tabelle */
 table#credentials{
 	width:99%;
 }
@@ -164,23 +157,13 @@ table#credentials tr td input{
 	width:99%;
 }
 
+/* Text unten */
 div#notestext{
 	font-size: 42px;
 	font-weight: bold;
 	padding: 10px;
 	border-radius: 10px;
 	color: #ccc;
-}
-
-/* externe */
-
-.ui-widget,
-.ui-widget input,
-.ui-widget select,
-.ui-widget textarea,
-.ui-widget button {
-	font-family: Ubuntu, sans-serif;
-	font-size: 1em;
 }
 
 /* WebView */

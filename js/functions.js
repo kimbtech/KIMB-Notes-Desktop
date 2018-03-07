@@ -89,7 +89,7 @@ module.exports = {
 	//Freigaben Menübutton
 	"freigabenDialog" : function(){
 		//freigaben.js laden
-		require( __dirname + '/../freigaben/freigaben.js' );
+		require( __dirname + '/../freigaben/freigaben.js' )();
 	},
 	//Freigaben Menübutton
 	"webviewDevtools" : function(){
