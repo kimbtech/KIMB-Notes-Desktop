@@ -15,7 +15,7 @@ module.exports = {
 		w = electron.BrowserWindow.getFocusedWindow();
 		//Wiklich ausloggen?
 		dialog.showMessageBox(
-			{ type: 'info', buttons: ['Ja', 'Nein'], message: 'Wollen Sie sich wiklich ausloggen?' },
+			{ type: 'info', buttons: ['Ja', 'Nein'], message: 'Wollen Sie sich wirklich ausloggen?' },
 			function (buttonIndex) {
 				if( buttonIndex === 0 ){
 					//Userdaten löschen
