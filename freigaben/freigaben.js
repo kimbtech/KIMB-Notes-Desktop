@@ -1,5 +1,5 @@
 /**
- * Die Hauptdatei des Systems 
+ * Die Hauptdatei für das Freigabenfenster
  */
 
 // ****
@@ -8,6 +8,9 @@
 
 // Electron API
 const electron = require('electron');
+//Bildschirm Position
+const BildschirmPosition = require( __dirname + '/../js/BildschirmPosition.js' );
+
 
 // ****
 // Allgemeines Fensterverhalten
@@ -17,13 +20,13 @@ const electron = require('electron');
 let freigWindow;
 
 function createWindow () {
-	// Fenster soll bei Maus geöffnet werden
-	var mousePos = electron.screen.getCursorScreenPoint();
+	// Fenster soll oben links im Fenster geöffnet werden
+	var windowPos = new BildschirmPosition().getActiveScreenTopLeft();
 
 	// Hauptfenster erstellen
 	freigWindow = new electron.BrowserWindow({
-		x: mousePos.x, 
-		y: mousePos.y,
+		x: windowPos.x, 
+		y: windowPos.y,
 		minWidth: 340,
 		width: 500,
 		height: 500,

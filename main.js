@@ -14,6 +14,8 @@ const electron = require('electron');
 
 //Systemkonfiguration
 const config = require( __dirname + '/js/config.js' );
+//Bildschirm Position
+const BildschirmPosition = require( __dirname + '/js/BildschirmPosition.js' );
 
 // ****
 // Allgemeines Fensterverhalten
@@ -23,13 +25,13 @@ const config = require( __dirname + '/js/config.js' );
 let mainWindow;
 
 function createWindow () {
-	// Fenster soll bei Maus geöffnet werden
-	var mousePos = electron.screen.getCursorScreenPoint();
+	// Fenster soll oben links im Fenster geöffnet werden
+	var windowPos = new BildschirmPosition().getActiveScreenTopLeft();
 
 	// Hauptfenster erstellen
 	mainWindow = new electron.BrowserWindow({
-		x: mousePos.x, 
-		y: mousePos.y,
+		x: windowPos.x, 
+		y: windowPos.y,
 		minWidth: 340,
 		width: 900,
 		height: 700,
@@ -60,9 +62,8 @@ function createWindow () {
 		)
 	);
 }
-
 // Fenster erst erstellen, wenn electron vollständig geladen ist
-electron.app.on('ready', createWindow)
+electron.app.on('ready', createWindow);
 
 // Programm beenden, wenn Fenster geschlossen, außer bei Mac
 electron.app.on('window-all-closed', function () {
