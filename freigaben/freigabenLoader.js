@@ -4,6 +4,14 @@
 
 // Systemkonfiguration
 const conf = require( __dirname + '/../js/config.js' );
+// URLs testen
+const validUrl = require('valid-url');
+// Speicher
+const FreigabenStorage = require(__dirname + '/FreigabenStorage.js' );
+//Speicher laden, wenn Fertig, Liste erstellen
+var saves = new FreigabenStorage( loadList );
+// Funktion zum Öffnen von WebViews
+const openWebView = require(__dirname + '/../js/openWebView.js');
 
 // Entwickler Modus?
 if( conf.devMode ){
@@ -11,25 +19,14 @@ if( conf.devMode ){
 }
 
 // Liste laden
-function loadList(){
-	// Daten laden
-	/*
-		ToDo
-	*/
-	var saves = [
-		{
-			name : "Müüüh",
-			link : "hdsfser/sdfgertsdjkjksdgfre"
-		}
-	]
-
+function loadList(){	
 	// Liste erstellen
 	var list = "";
-	saves.forEach( function( data ){
+	saves.getList().forEach( function( data ){
 		list += '<li class="box" link="'+ data.link +'" style="line-height: 28px;">'
 			+ '<span class="name">' + data.name + '</span>'
 			+ '<span style="float:right">'
-			+ '<button class="deletefreigabe" title="Löschen">&#x2718;</button>'
+			+ '<button class="deletefreigabe" title="Löschen" time="'+ data.time +'">&#x2718;</button>'
 			+ '</span>'
 			+ '</li>';
 	});
@@ -38,8 +35,8 @@ function loadList(){
 
 	//Löschen Listener
 	$("button.deletefreigabe").click(function(){
-		var link = $( this ).parent().parent().attr("link");
-		deleteFreigabe( link );
+		var time = $( this ).attr("time");
+		deleteFreigabe( time );
 	});
 	//Öffnen Listener
 	$("span.name").click(function(){
@@ -47,7 +44,6 @@ function loadList(){
 		openFreigabe( link );
 	});
 }
-loadList();
 
 //Neue dazu
 function newFreigabe(){
@@ -63,14 +59,17 @@ function newFreigabe(){
 		name += link.substr( link.search("#"), 5 );
 	}
 
+	//http(s) davor, wenn nicht da
+	if( link.substr(0,7) != 'http://' && link.substr(0,8) != 'https://' ){
+		link = 'https://' + link;
+	}
+
 	// Überhaupt Link gegeben?
-	if( link != "" ){
+	if( link != "" && validUrl.isUri( link ) ){
 		//speichern?
 		if( save ){
-			/*
-				ToDo
-			*/
-			console.log( 'Save: (' + link + ',' + name + ')' );
+			//der Liste anfügen
+			saves.addToList( { link : link, name : name } );
 
 			//Freigabe öffnen
 			openFreigabe( link )
@@ -86,11 +85,11 @@ function newFreigabe(){
 $("button#loginsubmit").click( newFreigabe );
 
 //Löschen
-function deleteFreigabe( link ){
-	/*
-		ToDo
-	*/
-	console.log('Delete: ' + link );
+function deleteFreigabe( time ){
+	//aus der Liste entfernen
+	saves.removeFromList( parseInt( time ) );
+
+	console.log( time );
 
 	//Liste neu laden
 	loadList();
@@ -98,8 +97,21 @@ function deleteFreigabe( link ){
 
 //Öffnen
 function openFreigabe( link ){
-	/*
-		ToDo
-	*/
-	console.log('Open: ' + link );
+	openWebView( link, ( webview ) => {
+		
+		var css = 'body { background: #f5f5f5; } '
+			+ 'div.main { border: none; box-shadow: none; } '
+			+ 'h1 { display:none; }'
+			+ 'div.footer a { color: black } ';
+
+		webview.executeJavaScript( ' $("button#closenote").unbind("click").click( function () { window.open("file://dont-open/")  } ); ' );
+		webview.executeJavaScript( ' $("head").append( "<style>' + css + ' )</style>" );' );
+
+		webview.addEventListener('new-window', (event, url) => {
+			if( event.url == 'file://dont-open/' ){
+				location.reload();
+			}
+		});
+		
+	});
 }

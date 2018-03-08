@@ -10,14 +10,14 @@ const electron = require( 'electron' );
 	const ipc = electron.ipcRenderer
 	//	System Dialog
 	const dialog = electron.remote.dialog 
-	//	Electron Shell
-	const shell = electron.shell;
 // URLs testen
 const validUrl = require('valid-url');
 // Hashing
 const sjcl = require('sjcl');
 //Webrequests
 const request = require( 'request' );
+//Funktion zum Öffnen von WebViews
+const openWebView = require(__dirname + '/openWebView.js');
 
 //Struktur für Userdaten
 var userdata = {
@@ -66,55 +66,6 @@ function web_request( task, post, callback, errcallback ){
 				}
 			}
 	    });
-}
-
-/**
- * Rufe eine URL mittles WebView auf.
- * @param {String} url URL, welche im WebView aufgerufen werden soll
- * @param {function (webview} donecallb (optional) Callback, welches nach fertig geladenem Webview aufgerufen wird
- */
-function openWebView( url, donecallb ){
-	//übergeordnetes zeigen
-	$( "div.webview" ).removeClass( 'disable' );
-
-	if( $( "webview#mainWebview" ).length === 0 ){
-		//Webview erstellen
-		$( "div.webview" ).html(
-			'<webview src="' + url + '" id="mainWebview" useragent="KIMB-Notes-Desktop (using Electron, Chrome)"></webview>'
-		);
-
-		//als Variable verfügbar machen
-		var webview = $( "webview#mainWebview" )[0];
-	}
-	else{
-		//als Variable verfügbar machen
-		var webview = $( "webview#mainWebview" )[0];
-
-		webview.loadURL( url );
-	}
-
-	//Links im Browser öffnen
-	webview.addEventListener('new-window', (e) => {
-			shell.openExternal(e.url);
-	});
-	webview.addEventListener('will-navigate', (e) => {
-			shell.openExternal(e.url);
-	});
-	
-	//immer korrekt beenden
-	webview.addEventListener('destroyed', () => {
-		$( "div.webview" ).addClass( 'disable' );
-	});
-	webview.addEventListener('close', () => {
-		$( "div.webview" ).addClass( 'disable' );
-	});
-	
-	//Callback ermöglichen
-	if( typeof donecallb === "function" ){
-		webview.addEventListener('dom-ready', (e) => {
-			donecallb( webview );
-		});
-	}
 }
 
 /**
