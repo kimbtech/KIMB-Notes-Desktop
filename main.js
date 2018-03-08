@@ -26,7 +26,7 @@ let mainWindow;
 
 function createWindow () {
 	// Fenster soll oben links im Fenster geöffnet werden
-	var windowPos = new BildschirmPosition().getActiveScreenTopLeft();
+	var windowPos = new BildschirmPosition().getActiveScreenCenter( 900, 700 );
 
 	// Hauptfenster erstellen
 	mainWindow = new electron.BrowserWindow({

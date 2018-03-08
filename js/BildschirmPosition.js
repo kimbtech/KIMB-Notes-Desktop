@@ -27,6 +27,8 @@ module.exports = class {
 		this.activeScreenTopLeftData = {x : 0, y : 0};
 		//noch nicht berechnet
 		this.activeScreenTopLeftCalced = false;
+		//Referenz für aktuelles Display
+		this.display = null;
 
 		//App bereit?
 		if( app.isReady() ){
@@ -53,7 +55,7 @@ module.exports = class {
 
 	/**
 	 * Getter für die Position, an der sich ein Fenster öffnen soll, damit es
-	 * zentral auf dem aktuellen Bildschirm liegt.
+	 * oben links auf dem aktuellen Bildschirm liegt.
 	 * @return {JSON} x und y mit int-Werten
 	 * @throws {NotReadyException}
 	 */
@@ -67,6 +69,33 @@ module.exports = class {
 			//noch nicht möglich, Fehler
 			throw new NotReadyException( 'Die Abfrage ist noch nicht möglich, da Electron noch nicht bereit ist.' );
 		}
+	}
+
+	/**
+	 * Getter für die Position, an der sich ein Fenster öffnen soll, damit es
+	 * zentral auf dem aktuellen Bildschirm liegt.
+	 * @param {number} width Breite des zu zentrierenden Fensters
+	 * @param {numbr} height Höhe des zu zentrierenden Fensters
+	 * @return {JSON} x und y mit int-Werten
+	 * @throws {NotReadyException}
+	 */
+	getActiveScreenCenter( width, height ){
+		//Obere linke Ecke
+		var topleft = this.getActiveScreenTopLeft();
+		topleft.x = topleft.x - 20;
+		topleft.y = topleft.y - 20;
+
+		//Mitte des Bildschirms
+		var center = {
+			x : topleft.x + Math.floor( this.display.bounds.width / 2 ),
+			y : topleft.y + Math.floor( this.display.bounds.height / 2)
+		};
+
+		//Fenstergröße abziehen => obere linke Ecke des Fensters
+		center.x = center.x - Math.floor( width / 2 );
+		center.y = center.y - Math.floor( height / 2 );
+
+		return center;
 	}
 
 	/**
@@ -94,6 +123,8 @@ module.exports = class {
 				//oben links in diesem Bildschirm
 				this.activeScreenTopLeftData.x = display.bounds.x + 20;
 				this.activeScreenTopLeftData.y = display.bounds.y + 20;
+
+				this.display = display;
 
 				//fertig
 				return;
