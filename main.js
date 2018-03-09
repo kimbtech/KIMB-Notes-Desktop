@@ -15,7 +15,7 @@ const electron = require('electron');
 //Systemkonfiguration
 const config = require( __dirname + '/js/config.js' );
 //Bildschirm Position
-const BildschirmPosition = require( __dirname + '/js/BildschirmPosition.js' );
+const BildschirmPosition = require( 'electron-window-position' );
 
 // ****
 // Allgemeines Fensterverhalten

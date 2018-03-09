@@ -9,7 +9,7 @@
 // Electron API
 const electron = require('electron');
 //Bildschirm Position
-const BildschirmPosition = require( __dirname + '/../js/BildschirmPosition.js' );
+const BildschirmPosition = require( 'electron-window-position' );
 
 
 // ****
