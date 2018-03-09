@@ -1,9 +1,9 @@
 # KIMB-Notes-Desktop
 
-Eine Desktop Application für KIMB-Notes basierend auf [electron-quick-start](https://github.com/electron/electron-quick-start).
+Eine Desktop Application für KIMB-Notes, zum [KIMB-Notes Repository](https://github.com/kimbtech/KIMB-Notes).
 
 >
-> Alles weitere zu KIMB-Notes befindet sich im [KIMB-Notes Repository](https://github.com/kimbtech/KIMB-Notes).
+> Basierend auf [electron-quick-start](https://github.com/electron/electron-quick-start).
 >
 
 ## Releases
