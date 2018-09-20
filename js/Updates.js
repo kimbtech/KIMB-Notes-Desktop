@@ -11,8 +11,8 @@
 		this.compareVersions = require('compare-versions');
 		this.storage = require('electron-json-storage');
 
-		this.package_json_url = 'https://api.github.com/repos/kimbtech/KIMB-Notes-Desktop/contents/package.json';
-		this.releases_url = 'https://github.com/kimbtech/KIMB-Notes-Desktop/releases/latest';
+		this.package_json_url = 'https://api.github.com/repos/kimb-technologies/KIMB-Notes-Desktop/contents/package.json';
+		this.releases_url = 'https://github.com/kimb-technologies/KIMB-Notes-Desktop/releases/latest';
 
 		this.githubchecked = false;
 		this.hasUpdate = false;
@@ -69,7 +69,7 @@
 		var option = {
 			url: this.package_json_url,
 			headers: {
-				'User-Agent': 'KIMB-Notes-Desktop by kimbtech'
+				'User-Agent': 'KIMB-Notes-Desktop by KIMB-technologies'
 			}
 		};
 

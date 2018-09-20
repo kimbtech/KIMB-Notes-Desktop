@@ -23,9 +23,9 @@ if( process.platform === 'darwin' ){
 				label: 'Über KIMB-Notes-Desktop',
 				click: () => openAboutWindow({
 					icon_path: __dirname + '/../assets/icons/png/128x128.png',
-					bug_report_url : 'https://github.com/kimbtech/KIMB-Notes-Desktop/issues',
+					bug_report_url : 'https://github.com/kimb-technologies/KIMB-Notes-Desktop/issues',
 					copyright: 'copyright by KIMB-technologies 2017, distributed under terms of GPLv3',
-					homepage: 'https://github.com/kimbtech/KIMB-Notes-Desktop',
+					homepage: 'https://github.com/kimb-technologies/KIMB-Notes-Desktop',
 					description: 'A desktop application for KIMB-Notes server.',
 					license: 'GPL-3.0',
 					win_options : electron.screen.getCursorScreenPoint()
@@ -62,9 +62,9 @@ else{
 					label: 'Über KIMB-Notes-Desktop',
 						click: () => openAboutWindow({
 							icon_path: __dirname + '/../assets/icons/png/128x128.png',
-							bug_report_url : 'https://github.com/kimbtech/KIMB-Notes-Desktop/issues',
+							bug_report_url : 'https://github.com/kimb-technologies/KIMB-Notes-Desktop/issues',
 							copyright: 'copyright by KIMB-technologies 2017, distributed under terms of GPLv3',
-							homepage: 'https://github.com/kimbtech/KIMB-Notes-Desktop',
+							homepage: 'https://github.com/kimb-technologies/KIMB-Notes-Desktop',
 							description: 'A desktop application for KIMB-Notes server.',
 							license: 'GPL-3.0',
 							win_options : electron.screen.getCursorScreenPoint()

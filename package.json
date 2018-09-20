@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/kimbtech/KIMB-Notes-Desktop",
+  "repository": "https://github.com/kimb-technologies/KIMB-Notes-Desktop",
   "keywords": [
     "Electron",
     "Notes",
