@@ -1,3 +1,7 @@
+>
+> This is the old repository, the development takes place at
+> > **https://github.com/KIMB-technologies/KIMB-Notes-Desktop**
+
 # KIMB-Notes-Desktop
 
 Eine Desktop Application für KIMB-Notes, zum [KIMB-Notes Repository](https://github.com/kimb-technologies/KIMB-Notes).
